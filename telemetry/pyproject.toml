@@ -1,0 +1,69 @@
+[project]
+name = "telemetry-sample"
+version = "1.0.0"
+description = "Sample FastAPI project demonstrating OpenTelemetry setup with hybrid design patterns"
+authors = [{name = "AI Engineering Section"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    "pyyaml>=6.0.1",
+    "structlog>=25.4.0",
+    "asgi-correlation-id>=4.3.4",
+    # OpenTelemetry core
+    "opentelemetry-api>=1.27.0",
+    "opentelemetry-sdk>=1.27.0",
+    # OpenTelemetry instrumentation
+    "opentelemetry-instrumentation>=0.48b0",
+    "opentelemetry-instrumentation-fastapi>=0.48b0",
+    "opentelemetry-instrumentation-httpx>=0.48b0",
+    "opentelemetry-instrumentation-logging>=0.48b0",
+    "opentelemetry-instrumentation-requests>=0.48b0",
+    # Azure Monitor exporter (optional - for Azure deployments)
+    "azure-monitor-opentelemetry>=1.6.0",
+    "azure-monitor-opentelemetry-exporter>=1.0.0b28",
+    # OTLP exporter (for AWS/GCP/self-hosted)
+    "opentelemetry-exporter-otlp-proto-grpc>=1.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",
+    "ruff>=0.7.0",
+    "mypy>=1.11.0",
+    "types-pyyaml>=6.0.12",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_optional = true
+ignore_missing_imports = true

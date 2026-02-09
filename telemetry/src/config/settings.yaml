@@ -1,0 +1,56 @@
+# Telemetry Configuration
+# This file demonstrates the configuration format for the telemetry system
+
+telemetry:
+  service_name: "telemetry-sample"
+  service_version: "1.0.0"
+  environment: "local"
+
+  # Multiple exporters can be configured simultaneously
+  exporters:
+    # Console exporter - for local development
+    - provider: console
+      enabled: true
+      sampling_ratio: 1.0  # 100% sampling
+      exclude_endpoints:
+        - health
+        - docs
+        - openapi.json
+        - metrics
+      enable_batching: true
+      batch_size: 100
+      batch_timeout_ms: 5000
+      console:
+        pretty_print: true
+
+    # Azure Monitor exporter - for production
+    - provider: azure_monitor
+      enabled: false  # Enable in production
+      sampling_ratio: 0.1  # 10% sampling in production
+      exclude_endpoints:
+        - health
+        - docs
+        - openapi.json
+        - metrics
+      enable_batching: true
+      batch_size: 512
+      batch_timeout_ms: 5000
+      azure_monitor:
+        connection_string: "InstrumentationKey=your-key-here;IngestionEndpoint=https://..."
+        enable_live_metrics: true
+
+    # OTLP exporter - for cloud-agnostic backends
+    - provider: otlp
+      enabled: false  # Enable if using OTLP collector
+      sampling_ratio: 1.0
+      exclude_endpoints:
+        - health
+        - docs
+        - openapi.json
+      enable_batching: true
+      batch_size: 512
+      batch_timeout_ms: 5000
+      otlp:
+        endpoint: "http://localhost:4317"
+        headers: {}
+        insecure: true  # Set to false for production
