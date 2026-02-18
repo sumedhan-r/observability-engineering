@@ -12,7 +12,7 @@
 
 In order to adopt Observability as a standard practice across a project, the application needs to be built such that an ideal source of data/information is captured from the distributed system and stored in a remote storage suited for analytical purposes. Such data is categorized as telemetry data. 
 
-Telemetry is the automatic operation of collecting analytical data of any system and transmitting it to a remote storage location. Telemetry operations have been applied in various industries prior to Software industry such as Aerospace, Automotive and Healthcare. The primary objective that prompted engineers to implement this functionality was to detect and understand potential failure points and failure sources of the mechanical device/human body. Failure scenarios that lie on long tail of event distributions (unknown unknowns) cannot be predicted by any means and can be efficiently addressed only with timely and noise-free raise of awareness to the critical situation and depending on the data points gathered in the critical situation, PICs can take responsible actions.
+Telemetry is the automatic operation of collecting analytical data of any system and transmitting it to a remote storage location. Telemetry operations have been applied in various industries prior to Software industry such as Aerospace, Automotive and Healthcare. The primary objective that prompted engineers to implement this functionality was to detect and understand potential failure points and failure sources of the mechanical device/human body. Failure scenarios that lie on long tail of event distributions (unknown unknowns) cannot be predicted by any means and can be efficiently addressed only with timely and noise-free raise of awareness to the critical situation, and depending on the data points gathered in the critical situation, PICs can take responsible actions.
 
 For a software application in a distributed system (built with Microservice architecture), the ideal source of telemetry data that can be gathered is called a Structured Event. A structured event represents a snapshot of the application at any given time instance, describing the internal state based on a broad range of parameters (fields). 
 
@@ -89,7 +89,7 @@ Even for the purpose of delayed analysis, modern software systems raise problems
 - Distributed components : Since modern software systems consist of decoupled and independent components, each component has a different set of parameters that constitutes its overall performance. When the history of log records are checked in the telemetry storage, it will consist of a chaotic ordering of logs based on multiple components transmitting the log records to a centralized aggregator in addition to making the history of records larger in context.
 - Different UoW : Software system consist of different UoWs depending on different functionalities of the application. Each UoW would consist of its own time span and execution history which would make it difficult to determine which log records can be abstracted out to a given UoW. UoWs need not necessarily be different based on components, a single component could perform various tasks, leading to multiple UoWs.
 
-In unstructured logs, no easy modular approaches or action steps can be taken in order to group the logs belonging to a single component or UoW. In structured logs, one can use data points for the given component or UoW being analysed and filter logs based on this data point to confidently check the log records pertaining to the past performance of the application. It must be noted that even structured logs fail to take into consideration the interdependency of components or UoW (parallel tasks) and lacks application dynamics, which are all needed to obtain accurate Observability.
+In unstructured logs, no easy modular approach or action steps can be taken in order to group the logs belonging to a single component or UoW. In structured logs, one can use data points for the given component or UoW being analysed and filter logs based on this data point to confidently check the log records pertaining to the past performance of the application. It must be noted that even structured logs fail to take into consideration the interdependency of components or UoW (parallel tasks) and lacks application dynamics, which are all needed to obtain accurate Observability.
 
 # Tracing
 
@@ -159,7 +159,7 @@ Auto instrumentation has a different alias to it, often referred to as Zero-code
 
 Opentelemetry has set the standards for collecting and storing Telemetry data at the highest level and has convinced developers across the world to adopt and incorporate packages in most of the application code bases. This has been independent of the purpose and objective of Observability in modern software systems. 
 
-In order to benefit from the pragmatic aspects of Observability, engineers need to be able to navigate Telemetry data with the least amount of friction and confusion. This is due to the urgency and layers of code & human errors that needs to be mitigated followed by an acceptable level of resolution. For this to be feasible, the Collector has to be designed to cumulate all Telemetry data with the same origin source and correlate all Telemetry pillars with some form of shared context (correlation ID/trace Id/span ID). Correlating all pillars of Telemetry data enables engineers to know which traces need to be linked to which logs and filter out logs that might not be involved in a particular operation/UoW.
+In order to benefit from the pragmatic aspects of Observability, engineers need to be able to navigate Telemetry data with the least amount of friction and confusion. This is due to the urgency and layers of code & human errors that needs to be mitigated followed by an acceptable level of resolution. For this to be feasible, the Collector has to be designed to accumulate all Telemetry data with the same origin source and correlate all Telemetry pillars with some form of shared context (correlation ID/trace Id/span ID). Correlating all pillars of Telemetry data enables engineers to know which traces need to be linked to which logs and filter out logs that might not be involved in a particular operation/UoW.
 
 Non-OpenTelemetry collector components are designed as follows:
 
@@ -175,3 +175,155 @@ On the other hand, OpenTelemetry collector components are designed as follows:
 
 The contrast is clearly visible in the design pattern of OpenTelemetry collectors. Exporters are unified and fall under the same component and intermediate Telemetry data processing takes place which engenders correlation across all pillars.
 
+# Events transformed for Observability
+
+## Traditional Approaches
+
+In traditional software systems that relied on monolithic architectures that were considerably simpler to construct and maintain, teams were organized such that engineers with the most experience remember and document all details related to the architecture and use predictable, previously encountered error scenarios to debug and resolve incidents. Runbooks and documentations were created and maintained as a consequence of managing teams in these traditional projects.
+
+But with the advent of distributed systems, having the most experience or the best memory in the architecture is not the ideal approach to resolving incidents due to the high internal complexity of modern distributed systems. Moreover, this leads to reliance on intuition and implicit biases which could create an error scenario born out of human mistakes and leaves the incident in a worse situation than the original system effect.
+
+With the accepted practice of maintaining runbooks and documents among development teams for a given modern system, it becomes even more important for everyone involved in the project to get familiar with the downsides of maintaining such documents. The purpose these documents serve in current projects is to share fundamental knowledge regarding the system to members who are unfamiliar with it or are newly onboarded to the project. When the scope of these documents and runbooks expand to solving all possible and predictable error scenarios, it becomes a never ending arms-race of creating and updating documents, which could give rise to episodes of incorrect documentation. And in times of incidents, incorrect documentation is a bigger detriment to the team and the system compared to no documentation. 
+
+In order to adapt to modern systems, adopting and adhering to Instrumentation practices would be crucial since every time features are introduced, the core instrumentation logic for the application will not significantly change (other than manual instrumentation coverage) and as such, will never have incorrect data explaining the internal state and functionality of the application.
+
+## Observability-oriented Approaches
+
+If relying on experience or strong memory or intuition is pernicious to resolving incidents, the alternative that is more suitable is to debug from First Principles. First principles means that a given statement or description of an object/scenario is fundamental and cannot be broken down further in order to explain. First principles are the building blocks of every scientific experiment, relying on factual statements rather than implicit assumptions. Having any sort of assumption for a modern software system only complicates the process of obtaining observability when any given application is built with dependencies which are complex in nature themselves and whose contribution is hidden away from the engineering team in the form of API contracts.
+
+Using first principles allows the engineering team involved in developing and maintaining the application to come up with hypotheses during an incident and different hypotheses can be validated using a structured approach, given that the required telemetry for observability is already in place (structured logging, distributed tracing, event snapshots).
+
+One of the proposed system (in the book Observability Engineering) that teams can adopt is called Core-Analysis loop. This system approaches the RCA process in a cyclical manner that progresses based on interactive feedback.
+
+### Core-Analysis Loop
+
+One of the most important pre-requisites for any team starting to adopt the Core-Analysis loop system for observability and incident resolution is to have Telemetry in place, specifically Event snapshots. It is only these event snapshots that allow the engineering team to proceed with the steps laid out in this process.
+
+Another point that needs a minor highlight is that detecting an issue in the application need not always be from an alert, although that is the ideal approach. Sometimes it can be initiated by a customer complaint as well. This offsets some of the burden of having to define strong SLO based alerts in the project when the team has little to no experience defining SLOs in the past.
+
+Having mentioned that, below is the proposed system:
+
+- Step 1 : Detect the issue from an alert (SLO based) or from a customer complaint
+- Step 2 : Verify the issue based on anomalous behaviors - visual chart spikes, pattern breaks etc.
+- Step 3 : Isolate the attributes that are leading causes of the incident encountered
+  - Filtering sample event snapshots
+  - Finding pattern changes based on a collection of event attributes
+  - Reducing the dimensions further to isolate correlation and deduct probable causation
+- Step 4 : If the number of dimensions have not been reduced to a deterministic state, or if the causation is not conclusive due to inadequate evidence, perform Step 1 again sequentially
+
+<img src="./images/core-analysis-loop.png" alt="core-analysis-loop" width="600">
+
+The Core-Analysis loop progresses with a higher time to resolve when done in a completely manual approach, thereby worsening incident resolution metrics such as MTTD, MTTR. One of the steps (specifically step 3) can be automated to a certain extent by pursuing the following approach :
+
+- Collect the events considered baseline performance
+- Collect the events that are outliers and record the incident occurrence
+- Perform a diff between the baseline and outlier event sample base to obtain the event attributes that provide probable causation with the highest magnitude difference. 
+
+This automation does not require domain knowledge, project expertise or use of advanced tools like AI/ML and can be performed with a simple backend algorithm of performing differences. Incorporating this automation in the Core-Analysis loop enhances the team's ability to learn and adopt Observability practices without having to go through burnouts or deal with suspicions either in the system or in the learning process.
+
+The extent to which any engineering team relies on AI/ML as a tool for better Observability or better SRE in general should only be determined by what AI is capable of during these real-time production issues. AI models are most capable in data processing, computation algorithms and pattern recognition, whereas humans are most capable at cognitive analysis and pragmatic awareness. Teams cannot tolerate delayed incident resolutions and waste precious time figuring out the RCA while also having to deal with model errors in anomaly detection or incomplete error resolution. Instead, AI needs to be leveraged with the right approach of using it for crunching large amounts of telemetry data using computation to arrive at intermediate steps. Once intermediate steps have been reached, humans in the middle of the incident resolution process provide their cognitive and pragmatic opinions on the situation being faced and guide the AI models in the right direction. Acting on incidents with human-AI collaboration is what leads to quicker and more efficient resolutions in an ideal world (certain pitfalls would still need to be addressed such as human miscalculation, AI false positives).
+
+# Observability and Monitoring cohesion
+
+Traditional monitoring systems have been developed over time under projects that involved monolithic architectures. All the best practices that have been discovered iteratively apply for the prominent factors that were of concern to engineering teams involved in those respective projects.
+
+Some of the best practices include
+
+- Alerting based on warning conditions that are assessed using numeric values (metrics)
+- Storing monitored metrics in time-series databases for better loading of telemetry datasources
+- Setup runbooks for frequent incidents to resolve issues efficiently
+
+Some of the factors concerning the utility of Monitoring include
+
+- Addressing unknown conditions of known failure modes
+- Taking a reactive approach to incident or bug resolution (warning alerts)
+- Prioritized focus on system components
+
+As and when software architectures migrated from monoliths to microservices, a separation of concern arose between what we call a system and what we call an application. In modern software projects, engineers are forced to acknowledge and be capable of clearly defining the boundary between system and software within their own projects since different projects have different scopes and deliverables. Traditional monitoring still holds merit in current software projects so long as it is applied only to Systems. 
+
+Observability, on the other hand, needs to be applied deterministically towards all operations and consequences of application code. Factors that would allow an engineer to follow along in order to determine the necessity of Observability are
+
+- Operations that require more proactivity in being able to understand Production performance
+- All features that are accessed by end user and impact user experience
+- Deployment processes within the engineering team that introduces application code changes in Production
+
+## System vs Software
+
+Every project starts with certain business requirements for the product that they wish to develop and provide to end users. When the business requirements are shared among the engineering team with a generic comprehension, these requirements provide the needed perspective to define what constitutes a Software. 
+
+But having engineers work on code changes as per business requirements does not mean that the product can be launched to the end user. Various dependencies, vendors, provisions play crucial roles in the engineering team's ability to create a deployable product to the market for the end user to have access to it rather than the end user accessing an immaterial code base. These dependencies and components that are required to be installed, configured and occasionally updated for the product's deployment to Production constitute a System.
+
+A system provides the essentials (needs) for an engineering team that allows them to focus on the software deliverable catering user's expectations (wants). 
+
+Depending on the scope of the project that the team is involved in, preference towards Monitoring or Observability changes. This can be viewed in a spectrum of Monitoring on one side and Observability on the other. If the team takes responsibility in providing system components that behave more like hardware components or that which require following real-world physical constraints (virtual machines), then monitoring is critical since that allows the engineering team to assess the performance of their product along the lines of physical constraints which can be represented easily in numeric forms (possibly applied in appropriate equations). If instead the product being worked on involves greater levels of abstraction towards concepts and ideas that are free of physical constraints, these fall suitably to the definition of Software described above and demands increased abilities of Observability within the engineering team since behaviors of abstractions can never be easily predicted due to lack of constraint limits.
+
+<div style="position: relative; margin: 40px 0; padding: 20px 0;">
+  <div style="position: relative; height: 60px;">
+    <span style="position: absolute; left: 0%; top: 0; width: 22%; text-align: center; font-size: 0.9em;">Physical hardware behavior and operations <strong>(Hardware)</strong></span>
+    <span style="position: absolute; left: 25%; top: 0; width: 22%; text-align: center; font-size: 0.9em;">Logical provisions of physical constraints on components <strong>(Platform)</strong></span>
+    <span style="position: absolute; left: 50%; top: 0; width: 22%; text-align: center; font-size: 0.9em;">Highly capable algorithms and models offered as services <strong>(Backend)</strong></span>
+    <span style="position: absolute; left: 75%; top: 0; width: 25%; text-align: center; font-size: 0.9em;">Web and mobile apps used by normal people <strong>(Apps)</strong></span>
+  </div>
+  <div style="border-top: 3px solid #333; position: relative; margin: 10px 0;"></div>
+  <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+    <span style="font-weight: bold;">Monitoring</span>
+    <span style="font-weight: bold;">Observability</span>
+  </div>
+</div>
+
+
+## Hybrid Observability-Monitoring scopes among various Service providers
+
+As mentioned in the spectrum, one can represent different projects that development teams have contributions into four categories
+
+### Hardware/Infrastructure services
+
+These type of services represent products like bare-metal system where the engineering team is involved in configuring and organizing various physical components within a server that can be used by cloud platform providers or mobile network providers. It has a high reliance on Monitoring approaches to resolve problems in the services offered. Some of the factors that needs to be considered under Monitoring are
+
+- Firmware versions
+- Secondary storage or I/O file system performance statistics
+- Port counters
+- Temperature sensors and thermal metrics
+- Power consumption metrics
+
+### Platform services
+
+These type of services represent a Cloud Platform where various dependencies of an application can be configured and setup for engineering teams to proceed working on software projects. This is generally referred to as Infrastructure that the software engineering team relies upon. Some of the most important factors that are Monitored include
+
+- Domain Name System (DNS) counters
+- Disk statistics
+- Router connections
+- Database connection pool metrics
+- Message queue depth
+- Network throughput and packet loss
+
+### Backend/API services
+
+These type of services represent an API layer that certain software engineering teams can use under their project without having to develop the same complicated repertoire of algorithms required for building a feature. Complicated algorithms or models are delegated to external vendors who specialize in developing them. This can also include vendors who are primarily capable of solving a specific set of problems within a niche and have to follow certain business rules in order to offer their specialization. Some of the factors either Monitored or Observed that determine a healthy API service integration are
+
+- Execution time (throughput and latency)
+- Execution space (memory and disk storage)
+- Dependency service availability
+- Error rates and exception types
+- Query/script performance
+
+### User facing applications
+
+These are the types of products that every individual is familiar with when defining what a Software represents. End users who use the application never have to concern themselves with the technology used to develop the same. As such, every attempt to analyse the application performance has to be thought from the perspective of what the end user experiences, which is high in Observability. Important factors that engineering teams need to consider to Observe the application thoroughly are
+
+- User journey completion rates
+- Feature usage patterns
+- Client-side error rates
+- Page load times and rendering performance
+- User session durations
+- Click-through rates and interaction patterns
+
+Being able to deduce and explain internal workings on factors described above does not mean that the engineer responsible need not be aware of the technical details. To the contrary, their depth of technical awareness is what allows them to observe the internal workings of the application with certainty and meticulously (e.g. : a part of function logic is being responsible for delay in a service layer function call which slows down feature performance in UI) even if the factors being considered are abstracted to a business level perspective usually employed by project or product managers (e.g. : feature usage pattern).
+
+## Ideal Middle Ground
+
+Having described the different types of software projects that teams can work on, the need for Observability is reasonably high for teams primarily focused on writing code to create Applications or Backend APIs. Under these projects, the value of Monitoring systems can be strategically evaluated based on the following point
+
+> Higher level Infrastructure metrics like CPU usage, Disk write activity, Queue active messages that are **correlated** to Application code performance. From a causation perspective (specific example), deployment of new feature creates a spike in Infrastructure component metric for an extended time interval.
+
+Only when the Infrastructure metrics being monitored have any correlation to Application code performance do the metrics contain importance. During incident resolutions, Monitoring system setup for the software application can be assessed first to see any discrepancies or anomalies in these metrics with the sole intent of **ruling-out** contribution of Infrastructure in the incident encountered. Once the team has decided with certainty that the Infrastructure is not the reason why the incident occurred, they need to swiftly shift towards their Observability system to figure out which part of the Application code is causing the problem.
