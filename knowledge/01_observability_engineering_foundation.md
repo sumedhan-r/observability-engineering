@@ -1,4 +1,30 @@
-# Abbreviations
+# Observability Engineering - Foundation
+
+## Table of Contents
+
+- [Abbreviations](#abbreviations)
+- [Overview](#overview)
+- [Definition](#definition)
+- [Legacy vs Modern Software](#legacy-vs-modern-software)
+  - [Obsolete Observability approach for Modern software](#obsolete-observability-approach-for-modern-software)
+- [Observability components](#observability-components)
+  - [Cardinality](#cardinality)
+  - [Dimensionality](#dimensionality)
+- [Drawbacks of Traditional Monitoring](#drawbacks-of-traditional-monitoring)
+  - [Consequences of Monitoring applied to Modern Software](#consequences-of-monitoring-applied-to-modern-software)
+  - [Comparison of Monitoring vs Observability](#comparison-of-monitoring-vs-observability)
+- [Example use case](#example-use-case)
+  - [Mobile Backend as a Service](#mobile-backend-as-a-service)
+- [Monolithic vs Microservice Architecture](#monolithic-vs-microservice-architecture)
+  - [Monolithic](#monolithic)
+    - [Characteristics](#characteristics)
+    - [Experiences](#experiences)
+  - [Microservice](#microservice)
+    - [Characteristics](#characteristics-1)
+    - [Experiences](#experiences-1)
+- [Technical team benefits obtained from Observability](#technical-team-benefits-obtained-from-observability)
+
+## Abbreviations
 
 - **API** - Application Programming Interface
 - **CPU** - Central Processing Unit
@@ -13,7 +39,11 @@
 - **SRE** - Site Reliability Engineering
 - **UUID** - Universally Unique Identifier
 
-# Definition
+## Overview
+
+
+
+## Definition
 
 Observability is defined as the ability to determine the internal state of a system using external outputs/signals regardless of how fuzzy or bizarre the internal state is. Irrespective of whether the internal state is predictable or unpredictable, unprecedented, chaotic, the internal state must be determined with full certainty when using an Observability tool/method.
 
@@ -26,7 +56,7 @@ To break it down further into granular detail, Observability system must allow e
 
 Shipping custom code implies that a separate standalone feature is developed for the purpose of Observing previously built features. This is not the ideal way to understand how the internal state of the software system changes since the new custom code could bring additional complexity to the internal state even if it has simple logic attached to it.
 
-# Legacy vs Modern Software
+## Legacy vs Modern Software
 
 Legacy software relied on a Monolithic architecture. These architectures were simpler to understand, reason about and debug in times of production incidents. More often, an incident in production brought the whole application down and as such, feature development was constrained by the total amount of existing features and the business relations between Dev team and Ops team, since Ops team was responsible for maintaining the health of the application.
 
@@ -34,7 +64,7 @@ In contrast, modern software system relies on a Microservice architecture. This 
 
 And it is exactly due to the increased flexibility that has led to an increase in complexity and difficulty in developing Observability for the modern software system. Dev teams have modified their approach to writing functions and logic but the Ops team have been left behind with Legacy tools and approaches to Observability, which at this point has become obsolete.
 
-## Obsolete Observability approach for Modern software
+### Obsolete Observability approach for Modern software
 
 Current observability approaches that are founded on Legacy Monitoring and Observability are as followed
 
@@ -54,19 +84,19 @@ The reality of modern systems contain important differentiating factors making L
 - Developers own the code deployed to production and are incentivized to monitor their own features developed instead of outsourcing it to Ops team
 - Examination of correlation of software system features for Observability spans an infinite amount of dimensions.
 
-# Observability components
+## Observability components
 
 Observability for modern software system depends on two important components - Cardinality and Dimensionality
 
-## Cardinality
+### Cardinality
 
 Cardinality implies the uniqueness of data under a particular attribute/column. Higher cardinality implies that the attribute contains more unique values. High cardinal data allows for easier segregation and batch-wise analysis of internal state of system across the high cardinal dimension such as UUID or name. This allows for an abstraction of first possible variables to consider for querying the Observability data in order to perform RCA on a given failure state.
 
-## Dimensionality
+### Dimensionality
 
 Dimensionality implies the total collection of key-value pairs in a dictionary type data structure. An event, which is the fundamental building block of Observability, should ideally be very high dimensional in order to capture as many data points as possible. This will allow developers to assess the internal state of system using diverse correlation possibilities and would allow for efficient diagnosis during Unknown Unknown failure cases.
 
-# Drawbacks of Traditional Monitoring
+## Drawbacks of Traditional Monitoring
 
 Traditional Monitoring systems were setup for the demands of Legacy software products/applications. Legacy software products involved a Monolithic architecture with all the necessary hardware components (or virtualized system components) within a single entity/machine. This allowed for simpler approaches of setting up metrics for each components within the machine to assess the internal state of the system. Any code developed for the purpose of providing features to end users was limited in complexity to the capabilities of all components involved in the machine and the development team responsible for maintaining a functioning application at all times.
 
@@ -75,7 +105,7 @@ In Modern software systems, there has been a shift from Monolithic to Microservi
 - Metrics - Metrics are aggregated numeric values providing information on the performance of a given component under the assumption that the component is either completely Hardware or is a simpler extension of a Hardware Component at the OS layer (e.g. Virtual memory). But under a Microservice architecture, a component has a higher abstraction(virtualization) layer than a simple Hardware component, primarily determined by Software logic (e.g. Replicas with capabilities like autoscaling). As such, a metric is not going to capture the behavior of the component being monitored.
 - Alerts - Alerts are tools that are constructed using a rudimentary approach of setting a threshold using intuition-based navigation of error cases. The threshold value is approximated to represent an Error situation of the software systems. Under the case of metrics representing the internal state of system components accurately, thresholds for alerts are capable of capturing Error situations since the Hardware component is no longer running/working when the alert is being triggered. But for a Microservice architecture, components do not have a binary UP or DOWN status of execution, rather a broad spectrum of possibilities due to large amount of variables influencing the behavior, either predictable or unpredictable, controllable or uncontrollable. Hence a simple threshold is incapable of representing a spectrum of possibilities.
 
-## Consequences of Monitoring applied to Modern Software
+### Consequences of Monitoring applied to Modern Software
 
 Below are three consequences described that highlight how applying Traditional Monitoring to a Microservice architecture based application can hinder the overall approach of debugging and solving Error cases
 
@@ -84,7 +114,7 @@ Below are three consequences described that highlight how applying Traditional M
     - E.g. : a bug is present in code that has weaker configuration for data expiration in storage. Data expires before write operations due to disk space consumption. But the disk space consumption could either be due to the Software system performing read/write operations or Cloud provider OS performing maintenance operations. Hence configuration categorized as a bug cannot be determined as such with certainty
 - Tool hopping - In order to diagnose the issue using Traditional Monitoring approach, developers would often have to extract information regarding Failure state from various metrics along with Error logs filtered with insufficient query conditions. Context regarding traces is absent during the information retrieval for the encountered Failure state or a set of traces is extracted using a particular Trace ID obtained from the Error logs. The traces extracted may or may not describe the Failure state of the Software system. This leads to an uncertain set of results obtained for reasons or causes pertaining to the Failure state.
 
-## Comparison of Monitoring vs Observability
+### Comparison of Monitoring vs Observability
 
 Following the above three consequences of Monitoring applies to Modern software systems, we can compare how Observability approach performs in contrast to Traditional Monitoring.
 
@@ -98,11 +128,11 @@ Following the above three consequences of Monitoring applies to Modern software 
     - Traditional monitoring : Panels or Dashboards are setup in various places under various telemetry like metrics, logs and traces. Division of data visualization leads to the developer performing the diagnosis using a filtered set of metrics indicating the Failure state of the system. With minimal correlation, the evidences obtained from the metrics is linked to Error logs filtered with pre-determined queries that provides insufficient context on the Failure state since the logs are smeared with information outside the scope of the Failure state. Traces are assessed based on the IDs obtained from Error logs with the assumption that there exists a direct relationship between the error logs and traces. Once again, correlations are not taken into consideration, rather relationships between telemetry data is created inaccurately for the Failure state for the purpose of diagnosis. This leads to the developer making human errors due to exhaustive context switching between Visualization tools.
     - Observability : Platforms under observability provides the telemetry data with all context regarding the Failure state in a single location in the form of Correlation charts and Dependency graphs. Charts and graphs allow for real-time filtering of data points in addition to providing correlations between different dimensions in the telemetry data. Or one can obtain additional information under a high dimensional variable by dividing the data source to chunks/aggregations and determining which chunk describes the anomalous situation encountered. Having all Visualization panels under a single Dashboard reduces human errors when obtaining insights into the Failure state and makes the entire process less burdensome.
 
-# Example use case
+## Example use case
 
 Obtained from the book, one of the examples of need for Observability that was discovered as a consequence of multiple incidents faced is listed below:
 
-## Mobile Backend as a Service
+### Mobile Backend as a Service
 
 The project involved providing a platform to developers building a mobile application for simple end users. Some of the features that were provided by the Mobile Backend as a Service platform included user management, push notifications and integration with social networking services.
 
@@ -114,17 +144,17 @@ This platform was built using a Microservices architecture. Some of the problems
 - Most hardware consumption behavior resided in the extreme capacities. If a hardware component was available, the capacity consumed had percentages in single digits. If the hardware component was occupied/unavailable, the capacity consumed reached close to 100%. E.g. 99.9% site reliability meant that 0.1% shard of database was 100% down, causing data write loss to that shard of database. In addition, relevance or priority of the database shard could not be figured out.
 - Bot accounts created more performance issues in the platform. They were responsible for saturating the lock percentage of a database.
 
-# Monolithic vs Microservice Architecture
+## Monolithic vs Microservice Architecture
 
 The pressing need for Observability was discovered from the numerous issues faced in the MoBaaS platform described above. Most modern software systems in current market utilises a Microservice architecture in the Backend [Legacy vs Modern Software](#legacy-vs-modern-software). Following content describes in detail characteristics and performance attributes of each architecture.
 
-## Monolithic
+### Monolithic
 
 Monolithic architecture involves a simple orchestration of hardware components within a limited and predictable specification. This also meant that complexity of software written were minimal and user demands for the application could not be satisfied with architectural upgrades. Any performance drawback in the software system such as Latency, Request fails, etc. could only be improved to a certain higher ceiling.
 
 This led to Development teams limiting the number of features developed and deployed to Production. All developers were responsible for having a deeper understanding of the entire monolithic application, thereby restricting the possibility of distribution/delegation of SDLC tasks among team members. This was primarily because a single bug introduced into Production could cause the entire application to crash and it generally took longer for developers to debug the bug and push a fix to bring the service back up. Development team also got restrictions from the Operations team to not push complex code changes since the Objective of Operations team was to keep the application in Up status. This limited the overall Development cycle in the project.
 
-### Characteristics
+#### Characteristics
 
 - Application status was determined by Binary indicators - UP or DOWN
 - Code deployments were meticulously structured with maximum awareness to no bugs crashing the application in Production
@@ -132,7 +162,7 @@ This led to Development teams limiting the number of features developed and depl
 - In-house Operations team was responsible for Monitoring the status of the application along with the hardware components
 - Errors or incidents faced in the application was predictable or generalized for future occurrences and followed templates/runbooks for troubleshooting
 
-### Experiences
+#### Experiences
 
 - User experience was homogeneous due to the application being deployed inside a monolith.
 - Aggregated metrics were capable of indicating application performance with higher levels of reliability and correlation to real-world execution. E.g. Application Status, CPU usage, memory usage
@@ -140,7 +170,7 @@ This led to Development teams limiting the number of features developed and depl
 - Dependencies were limited to the monolith environment. Integrations with external service providers were minimal and the interaction of the application with outside network was easier to track.
 - Errors or incidents encountered were predictable and repeatable. As a result, runbooks were developed to mitigate and troubleshoot recurring problems and outsourced to Operations team. On-call engineers had to deal with lesser burden and time spent resolving incidents.
 
-## Microservice
+### Microservice
 
 Microservice architecture allowed to split the components present inside a monolith to an entity of its own. This meant that each component had more privilege, more capabilities and better solutions to dealing with recursive issues through modularization and virtualization of hardware components. E.g. - Autoscaling in container replicas is a virtualized way to handle resource exhaustion of containers in the architecture with graceful handling of resources utilized by the application along with efficient load balancing of backend processes/requests.
 
@@ -148,7 +178,7 @@ Creating dedicated components capable of handling specialized operations meant t
 
 But along with improved performance and capabilities brought along higher complexity levels in the architecture, creating unprecedented problems for the software system.
 
-### Characteristics
+#### Characteristics
 
 - Application status migrated to a Spectrum of possibilities (since one bug does not cause entire application to crash)
 - Code deployments shifted to progressive delivery (blue/green, canarying)
@@ -157,7 +187,7 @@ But along with improved performance and capabilities brought along higher comple
 - Operations team within an organization were incapable of providing effective solutions to incidents faced due to Cloud providers managing and controlling critical infrastructure components via API. This limited access to architecture component performance data for the developers involved within a project, including the Operations team.
 - Errors and incidents faced by the application were unprecedented and unpredictable, both in terms of occurrence instance and incident characteristics/factors. Unknown unknown became the standard of modern software applications.
 
-### Experiences
+#### Experiences
 
 - User experience became heterogeneous, meaning that different subset of users started experiencing different application performance conditions. An incident encountered by one or a set of users did not mean that all users were facing the same issue. This is because routing happens in different ways among different components in the backend.
 - Aggregated metrics represent the performance of a single component by ignoring correlations to other components and outside contributors like network. In modern distributed systems, interactions between components usually involve multiple requests being sent and received with each request providing incomplete information on the behavior of the processes. Metrics end up providing incomplete information on the status or behavior of the application as a consequence of having to deal with complex nature of modern software systems and networks.
@@ -165,7 +195,7 @@ But along with improved performance and capabilities brought along higher comple
 - Dependencies on external service providers started to increase, with each service provider relying on multiple other service providers to create their final product. In addition, outside networks also started to have modularization and virtualization, leading to complex methods of process handling and completion. Overall, complexity for debugging increased beyond manageable limits and became increasing inaccurate for RCA.
 - Errors and incidents faced by the application were unprecedented and unpredictable. Standard runbook methods became meaningless since a standard approach to solving unknown unknown problems cannot be devised. Instead, problems like these need to be assessed with real time data filtering and open-ended inquiries.
 
-# Technical team benefits obtained from Observability
+## Technical team benefits obtained from Observability
 
 Technical teams, depending on the size of the project, consist of Development, DevOps and SRE teams. Each team involved in the project have a certain level of responsibility in understanding the internal state of the system and how the application is affecting end users. Having a clear picture of this empowers each team to perform their tasks with certainty.
 

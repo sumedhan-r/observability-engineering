@@ -1,4 +1,18 @@
-# Overview
+# Observability Engineering
+
+# Table of Contents
+
+- [Overview](#overview)
+- [Content](#content)
+- [Evolution of Software Development](#evolution-of-software-development)
+- [Impact of Design Philosophy](#impact-of-design-philosophy)
+  - [Traits](#traits)
+  - [Behaviors](#behaviors)
+- [Monitoring vs Observability Comparison Points](#monitoring-vs-observability-comparison-points)
+- [Limitations to Monitoring](#limitations-to-monitoring)
+- [Benefits of Observability](#benefits-of-observability)
+
+## Overview
 
 This page and the following child pages covers all the notes gathered from reading the book Observability Engineering. The book primarily focuses on modern software systems with reasons to why a clarification needs to be made between Monitoring and Observability. In addition, an accurate definition of Observability allows developers under a project to solve issues in modern software systems with ease and reliability.
 
@@ -11,12 +25,12 @@ When a team that is working on a software project involving a Microservice archi
 - Alerts can be set from a budget perspective rather than purely technical metrics and indicators.
 - Organizations can further strengthen their relationships among technical and non-technical teams due to Observability processes
 
-# Content
+## Content
 
 - [Observability System - Foundation](../../../../personal-space/sumedhan/observability-engineering/01_observability_engineering_foundation.md)
 - [Observability System - Telemetry](../../../../personal-space/sumedhan/observability-engineering/02_observability_engineering_telemetry.md)
 
-# Evolution of Software Development
+## Evolution of Software Development
 
 In legacy projects under Monolithic architectures, teams approached the development phases based on following paradigms :
 
@@ -34,22 +48,69 @@ As teams shifted their efforts from a monolithic architecture to a microservice 
 - Development team could focus primarily on building the features and assign secondary importance to components involved in the architecture.
 - Components were highly decoupled and could be added independently. This also meant that each component could be optimized to its full capability, further allowing for application performance enhancement
 - Application logic was written primarily for the business logic and feature requirements.
-  - Dependencies were independently initialized and removed with customized build and execution abilites
+  - Dependencies were independently initialized and removed with customized build and execution abilities
   - API layer was only concerned with processing the requests whilst pushing the dependencies to the boundary layers of the Container app/Cluster node vs various Components involved
 - Operations team did not catch up. Drastic changes in architecture precipitated by Distributed systems did not shine light on requirements for an alternative perspective on Application maintenance. System performance was not impacted frequently due to a single component failure, making the overall reliance of Development team on the Operations team minimal.
 
 The inability to catch up with changing circumstances and practices in Software Development only increases the significance of adapting to a better practice for Operation tasks. This is realized through an Observability perspective when teams working on projects are deeply aligned with the fundamental principles responsible for obtaining Observability in software applications. 
 
-# Monitoring vs Observability Comparison Points
+## Impact of Design Philosophy
 
-Some of the key points to consider when comparing current Monitoring approaches to proposed Observability method are -
+Great software projects ensure the code base maintained and constructed follows great design practices. At times, business or functional limitations pose trade-off decisions that teams would have to make in order to proceed with finalized specifications for a given development cycle, but in spite of these decisions, the overall cadence of the project relies on a strong foundation in great design philosophy.
 
-- Application errors that are monitored are **predictable** in Monitoring (Infrastructure or Exception based in Grafana). Observability covers **unpredictable** errors, which is capable of handling incidents and minimizing critical scenarios.
-- Monitoring approach extracts application performance data and stores it in **time-series** and in acceptable aggregation interval. Observability extracts data and executes **real-time slicing** of high dimensional data for deductive root cause analysis.
-- Telemetry for Monitoring only captures **traces** at best, logs providing additional detail if captured properly. Telemetry for Observability captures **events** with high dimensionality in order to provide accurate context on the error case encountered in the application incident.
-- Monitoring is best suited to assess the performance of **infrastructure components** of an application, or **historical trends** of services offered to users. Observability is capable of assessing **user experience** and product usage in **real-time** with feature-level division and handles incidents rapidly (with time intervals of RCA spanning minutes at best)
+To what extent the team and project incorporate good design philosophies provides an indication on the convenience and inclusion of Observability skillsets. When the code base has methods and classes with clear and deep implementation, there exists a prior comprehension of the internal states of the application. These are predictions or simulations at best and do not provide the actual view on what happens in Production, but nevertheless encourages the team to establish better Observability practices since it allows them to better tackle the concern of feature instrumentation.
 
-# Limitations to Monitoring
+The perspective that would provide the biggest benefit for teams having a pre-established great design philosophy is to view Units of Work within the running application in Production as a Component with a certain set of **Traits** and **Behaviors**, giving separate attention to each of these factors. All applications have dependencies that can map out to complex relations and each dependency can be viewed as a Component from an abstract view interacting with other Components from an abstract view under the assumption that this vision is restricted to a single user or a single request. Observability perspectives still need to be adaptive to various dimensions that are present in the telemetry data to obtain an exhaustive view, but approaches to simulated visions provide the team with incremental steps for improvement in their Observability practices.
+
+### Traits
+
+Traits indicate what the corresponding Unit of Work contains as fundamental properties and capabilites. Due to their nature being fundamental, the implication of Traits for a Unit of Work is to provide a base idea on what Behaviors can be expected from the same. Traits provide the abstract view required in the inital phases of Software design and in further stages of Refactoring, giving stability to the developers when the scope of any development task is assessed.
+
+**Examples:**
+
+**1. Text Editor Module**
+- **Traits**: Contains a buffer (data structure), cursor position, undo/redo stack, file metadata
+
+**2. HTTP Client Class**
+- **Traits**: Has connection pool, timeout configuration, retry policy settings, SSL/TLS certificates
+
+**3. Database Transaction Manager**
+- **Traits**: Isolation level, lock table, transaction ID generator, rollback log
+
+### Behaviors
+
+Behaviors indicate what the corresponding Unit of Work performs when a certain input is provided with an expectation of a desired output after internal processing of the provided input. Perspectives from which the input is viewed can vary from an individual user situation to a request to a dependency call as described by the scope of the Unit of Work. Behaviors help the developers define what the purpose of a given Unit of Work is and to what extent does it benefit other components, dependencies and services in the application. Having a projection of value contributed by the Unit of Work clarifies the overall performance profile of the application.
+
+**Examples:**
+
+**1. Text Editor Module**
+- **Behaviors**:
+  - Input: Insert operation at position → Output: Updated buffer with character inserted
+  - Input: Undo command → Output: Previous buffer state restored
+  - Input: Save command → Output: Buffer persisted to disk
+
+**2. HTTP Client Class**
+- **Behaviors**:
+  - Input: GET request with URL → Output: Response with status code and body
+  - Input: Failed request → Output: Retry with backoff or error propagation
+  - Input: Timeout threshold exceeded → Output: Connection termination
+
+**3. Database Transaction Manager**
+- **Behaviors**:
+  - Input: BEGIN transaction → Output: New transaction context with ID
+  - Input: Conflicting write operations → Output: Lock acquisition or deadlock detection
+  - Input: COMMIT → Output: Persistent state change or rollback on failure 
+
+## Monitoring vs Observability Comparison Points
+
+| Aspect | Monitoring | Observability |
+|--------|-----------|---------------|
+| **Error Coverage** | Predictable errors (Infrastructure or Exception based in Grafana) | Unpredictable errors, capable of handling incidents and minimizing critical scenarios |
+| **Data Processing** | Extracts data and stores in time-series with acceptable aggregation interval | Executes real-time slicing of high dimensional data for deductive root cause analysis |
+| **Telemetry Focus** | Captures traces at best, logs providing additional detail if captured properly | Captures events with high dimensionality to provide accurate context on error cases |
+| **Use Case** | Assess performance of infrastructure components or historical trends of services | Assess user experience and product usage in real-time with feature-level division; rapid incident handling (RCA in minutes) |
+
+## Limitations to Monitoring
 
 Some of the limitations that Traditional Monitoring faces when applied to Distributed systems are - 
 
@@ -58,7 +119,7 @@ Some of the limitations that Traditional Monitoring faces when applied to Distri
 - *Container apps* : Key metrics like CPU usage and Memory usage in Container apps can be impacted via one of two options (or even both of them). One contributor for the CPU and Memory usage levels appear from the OS operations involved underneath the Container app whereas the other contributor is any given feature of the application encountering unexpected scenario of high user base access, high payloads, high feature functionality computation and so on. Measuring a simple usage metric does not allow us to distinguish between whether the contributor is some OS operation or is due to the application feature built and deployed.  
 - *Exception raises* : Being able to measure and view exception raises based on HTTP Status Code or even the name of the exception does not enable the team to be able to describe the overall state in verbose detail. One lacks the ability to differentiate between business logic exception vs downstream programming language propagated exceptions, ability to use trace IDs or correlation IDs to link together telemetry records and describe the failure state (even if these IDs are present, the problem source of the incident is assumed to be isolated to a single source which could be incorrect), ability to define partial state of all components involved in the application during the exception raise.
 
-# Benefits of Observability
+## Benefits of Observability
 
 Benefits that developers and stakeholders under a project can obtain as a consequence of using Observability are -
 
