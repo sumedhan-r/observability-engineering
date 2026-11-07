@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
           # Set a repository variable GITLAB_REPOSITORY (e.g. "group/project") to override.
-          GITLAB_REPOSITORY: ${{ vars.GITLAB_REPOSITORY || 'sumedhan/observability-engineering' }}
+          GITLAB_REPOSITORY: ${{ vars.GITLAB_REPOSITORY || 'sumedhan-group/observability-engineering' }}
         run: |
           git clone --bare "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" repo
           cd repo
