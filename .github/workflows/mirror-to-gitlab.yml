@@ -1,8 +1,10 @@
 name: Mirror to GitLab
 
 on:
+  # Fires for branch/tag creation, updates and deletions.
   push:
-  delete:
+  # Manual full sync (e.g. initial seed). Never forces or prunes.
+  workflow_dispatch:
 
 # Serialize runs so overlapping pushes can't race and leave GitLab out of sync.
 concurrency:
@@ -22,7 +24,23 @@ jobs:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
           # Set a repository variable GITLAB_REPOSITORY (e.g. "group/project") to override.
           GITLAB_REPOSITORY: ${{ vars.GITLAB_REPOSITORY || 'sumedhan-group/observability-engineering' }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          DELETED: ${{ github.event.deleted }}
+          FORCED: ${{ github.event.forced }}
         run: |
           git clone --bare "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" repo
           cd repo
-          git push --mirror "https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPOSITORY}.git"
+          gitlab="https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GITLAB_REPOSITORY}.git"
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            git push "$gitlab" 'refs/heads/*:refs/heads/*' 'refs/tags/*:refs/tags/*'
+          elif [ "$DELETED" = "true" ]; then
+            # GitLab refuses to delete protected branches, so this fails loudly for those.
+            git push "$gitlab" --delete "$REF"
+          elif [ "$FORCED" = "true" ]; then
+            # Rejected by GitLab for protected branches; succeeds for unprotected ones.
+            git push --force "$gitlab" "$REF:$REF"
+          else
+            git push "$gitlab" "$REF:$REF"
+          fi
